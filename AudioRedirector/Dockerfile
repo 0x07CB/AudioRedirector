@@ -1,52 +1,51 @@
-FROM arm64v8/python:3.10.14-alpine3.20
+FROM arm64v8/ubuntu:22.04
 LABEL maintainer="0x07cb"
+#ENV DEBIAN_FRONTEND noninteractive
 
+# Install package dependencies
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        alsa-base \
+        alsa-utils \
+        libsndfile1-dev
 
-# update packages list
-RUN apk update
+#RUN apt-get install -y \
+#        gettext \
+#        unzip \
+#        curl \
+#        wget \
+#        cmake \
+#        make \
+#        gcc \
+#        ninja-build \
+#        build-essential \
+#        shfmt
 
-# install required packages 
-# ( 'gcc' and 'meason' )
-# , please add 'libasound2' and 'libasound2-dev' to the list of packages
-RUN apk add --no-cache \
-    gcc \
-    make \
-    cmake \
-    musl-dev \
-    portaudio-dev \
-    alsa-lib-dev \
-    libffi-dev \
-    libsndfile-dev \
-    alsaconf \
-    alsa-utils \
-    alsa-lib \
-    alsa-plugins-pulse \
-    portaudio \
-    libsndfile 
+#    apt-get clean
 
-
-#musl-dev portaudio-dev alsa-lib-dev
+RUN apt-get install -y \
+    python3 \
+    python3-venv \
+    python3-pip 
 
 # create a new user (without root privileges)
 # username: appuser
 # password: appuser
-# I want this user have a home directory, and a group with the same name
-RUN addgroup -S appuser && adduser -S appuser -G appuser -h /home/appuser -s /bin/sh
-RUN addgroup $USER audio
-RUN addgroup root audio
-# change password for the user 'appuser'
+# With a home directory
+# With a group with the same name
+# With a shell: /bin/sh 
+RUN useradd -U -m -s /bin/sh appuser
+# add appuser to the audio group
+RUN usermod -a -G audio appuser
+# change password for appuser
 RUN echo "appuser:appuser" | chpasswd
-# change the password for the user 'root'
-RUN echo "root:root" | chpasswd
-
-
 USER appuser
 WORKDIR /home/appuser
 RUN python3 -m venv env \
     && source env/bin/activate \
     && python3 -m pip install --upgrade pip \ 
     && python3 -m pip install --no-warn-script-location --no-cache-dir --upgrade numpy soundfile sounddevice
- #&& pip install --no-cache-dir --upgrade numpy librosa matplotlib soundfile sounddevice tempfile
+
 
 # copy the source code
 COPY --chown=appuser:appuser ./app /home/appuser/app
@@ -55,9 +54,12 @@ COPY --chown=appuser:appuser ./app /home/appuser/app
 ENV PATH="/home/appuser/env/bin:$PATH"
 
 
-ENTRYPOINT ["/bin/sh"]
-#, "-c", "source env/bin/activate"]
-#" && python3 app/redirect_audio_in_out.py"]
 
 
- 
+# Nettoie le cache APT et supprime les paquets inutiles
+RUN apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+#ENTRYPOINT ["/bin/sh"]
+#ENTRYPOINT ["/bin/sh"]
