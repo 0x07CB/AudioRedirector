@@ -1,5 +1,3 @@
-#coding: utf-8
-
 import sounddevice as sd
 
 class AudioOutputStream:
@@ -17,9 +15,9 @@ class AudioOutputStream:
                                       channels=self.channels,
                                       blocksize=self.blocksize,
                                       callback=self.callback)
-        self.stream.start()
+        self.stream.__enter__()
         return self.stream
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.stream.stop()
-        self.stream.close()
+        if self.stream is not None:
+            self.stream.__exit__(exc_type, exc_value, traceback)

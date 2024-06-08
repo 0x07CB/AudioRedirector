@@ -16,4 +16,6 @@ class AudioFileSaver:
         return self.file
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.file.close()
+        if self.file is not None:
+            self.file.close()
+            self.file = None

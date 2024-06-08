@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
+import asyncio
+import sys
+
+from time import sleep
 from config.arguments import parse_arguments
 
 
@@ -80,24 +84,31 @@ def is_audio_signal_transmit(n_last_amplitudes=100,
             AUDIO_SOURCE_AMPLITUDES = keep_last_n_amplitudes(n=max_keep_last_amplitudes)
 
 
-def create_audio_file_saver(samplerate, channels):
-    return AudioFileSaver(samplerate=samplerate, channels=channels)
+async def create_audio_file_saver(samplerate, channels):
+    loop = asyncio.get_event_loop()
+    event = asyncio.Event()
+    stream = AudioFileSaver(samplerate=samplerate, channels=channels)
 
-def create_audio_input_stream(samplerate, channels, device, blocksize, callback):
-    return AudioInputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
+    with stream:
+        await event.wait()
 
-def create_audio_output_stream(samplerate, channels, device, blocksize, callback):
-    return AudioOutputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
+async def create_audio_input_stream(samplerate, channels, device, blocksize, callback):
+    loop = asyncio.get_event_loop()
+    event = asyncio.Event()
+    stream = AudioInputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
 
+    with stream:
+        await event.wait()
 
+async def create_audio_output_stream(samplerate, channels, device, blocksize, callback):
+    loop = asyncio.get_event_loop()
+    event = asyncio.Event()
+    stream = AudioOutputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
 
+    with stream:
+        await event.wait()
 
-# Initialisation du socket UDP
-#udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#udp_target_ip = '192.168.1.2'  # Remplacer par l'adresse IP de la machine cible
-#udp_target_port = 5005         # Choisir un port disponible sur la machine cible
-if __name__ == '__main__':
-
+async def main():
     Parser = parse_arguments()
     args = Parser.parse_args()
 
@@ -111,17 +122,18 @@ if __name__ == '__main__':
 
     # Utilisation des fonctions dans le code principal
     try:
-        file = create_audio_file_saver(args.samplerate, args.channels)
-        source = create_audio_input_stream(args.samplerate, args.channels, args.input_device, args.blocksize, audio_callbacks.callback_audio_source)
-        destination = create_audio_output_stream(args.samplerate, args.channels, args.output_device, args.blocksize, audio_callbacks.callback_audio_destination)
+        #create_audio_file_saver(args.samplerate, args.channels)
+        await create_audio_input_stream(args.samplerate, args.channels, args.input_device, args.blocksize, audio_callbacks.callback_audio_source)
+        await create_audio_output_stream(args.samplerate, args.channels, args.output_device, args.blocksize, audio_callbacks.callback_audio_destination)
         
-        with file, source, destination:
-            print('#' * 80)
-            print('Press <Ctrl+C> to quit')
-            print('#' * 80)
-            while True:
-                file.write(audio_callbacks.q__file.get())
-                
+        #with  source, destination:
+        print('#' * 80)
+        print('Press <Ctrl+C> to quit')
+        print('#' * 80)
+        while True:
+            #file.write(audio_callbacks.q__file.get())
+            sleep(1)
+
     except KeyboardInterrupt:
         print("Program interrupted by user.")
     except Exception as e:
@@ -129,3 +141,8 @@ if __name__ == '__main__':
 
     exit(0)
 
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        sys.exit('\nInterrupted by user')
