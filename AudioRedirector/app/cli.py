@@ -21,6 +21,9 @@ from audio_utils.signal_processing import get_dB_audio_signal, get_dBFS_audio_si
 
 from effects.audio_amplitude import get_amplitude_audio_signal, increase_gain_audio_signal, decrease_gain_audio_signal, normalize_audio_signal
 
+from audio_processing.limiting import max_limit_dB_audio_signal
+
+
 AUDIO_SOURCE_AMPLITUDES = []
 AUDIO_SOURCE_TRANSMIT_STATUS = False
 # define a variable to store the counts of the number of times the amplitude is greater than 2.0
@@ -28,12 +31,6 @@ AUDIO_SOURCE_TRANSMIT_COUNT = 0
 
 # audio_effect_adjust_pitch_and_speed(indata_array, pitch=1.0, speed=1.0):
 
-
-def max_limit_dB_audio_signal(indata_array, max_dB=0.0):
-    # Get the dB of the audio signal
-    dB_audio_signal = get_dB_audio_signal(indata_array=indata_array)
-    # if `dB_audio_signal` is greater than `max_dB`, then ajust all values in `indata_array` (if too high, then reduce the values). In resume if the audio signal is superior to the limit, then the audio signal is set to be equal to the limit.
-    return np.where(dB_audio_signal > max_dB, max_dB, indata_array)
 
 def get_n_last_amplitudes(n):
     global AUDIO_SOURCE_AMPLITUDES
