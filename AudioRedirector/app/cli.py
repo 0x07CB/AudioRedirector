@@ -15,7 +15,7 @@ from stream.audio_file_saver import AudioFileSaver
 from stream.audio_input_stream import AudioInputStream
 from stream.audio_output_stream import AudioOutputStream
 
-from callbacks.audio_callbacks import callback_audio_source, callback_audio_destination
+from callbacks.audio_callbacks import AudioCallbacks
 
 
 from audio_utils.signal_processing import get_dB_audio_signal, get_dBFS_audio_signal
@@ -90,25 +90,28 @@ def is_audio_signal_transmit(n_last_amplitudes=100,
 #udp_target_port = 5005         # Choisir un port disponible sur la machine cible
 if __name__ == '__main__':
 
-    args = parse_arguments()
+    Parser = parse_arguments()
+    args = Parser.parse_args()
 
     if args.list_devices:
         print("devices:\n{0}".format(sd.query_devices()))
-        parser.exit(0)
+        Parser.exit(0)
+
+    audio_callbacks = AudioCallbacks()
 
     try:
         with AudioFileSaver(samplerate=args.samplerate, channels=args.channels) as file:
             with AudioInputStream(samplerate=args.samplerate, device=args.input_device,
                               channels=args.channels, blocksize=args.blocksize,
-                              callback=callback_audio_source) as source:
+                              callback=audio_callbacks.callback_audio_source) as source:
                 with AudioOutputStream(samplerate=args.samplerate, device=args.output_device,
                                    channels=args.channels, blocksize=args.blocksize,
-                                   callback=callback_audio_destination) as destination:
+                                   callback=audio_callbacks.callback_audio_destination) as destination:
                     print('#' * 80)
                     print('Press <Ctrl+C> to quit')
                     print('#' * 80)
                     while True:
-                        file.write(q__file.get())
+                        file.write(audio_callbacks.q__file.get())
     except KeyboardInterrupt:
         #udp_socket.close()
         print("Program interrupted by user.")

@@ -10,4 +10,4 @@ def parse_arguments():
     parser.add_argument('-c', '--channels', type=int, default=2, help='Number of channels')
     parser.add_argument('--samplerate', type=int, default=48000, help='Sampling rate')
     parser.add_argument('--blocksize', type=int, default=384, help='Block size')
-    return parser.parse_args()
+    return parser
