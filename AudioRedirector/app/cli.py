@@ -11,6 +11,8 @@ from stream.audio_file_saver import AudioFileSaver
 from stream.audio_input_stream import AudioInputStream
 from stream.audio_output_stream import AudioOutputStream
 
+from audio_utils.signal_processing import get_dB_audio_signal, get_dBFS_audio_signal
+
 from effects.audio_amplitude import get_amplitude_audio_signal, increase_gain_audio_signal, decrease_gain_audio_signal, normalize_audio_signal
 
 AUDIO_SOURCE_AMPLITUDES = []
@@ -21,23 +23,11 @@ AUDIO_SOURCE_TRANSMIT_COUNT = 0
 # audio_effect_adjust_pitch_and_speed(indata_array, pitch=1.0, speed=1.0):
 
 
-
-
-
-
-
-
-def get_dB_audio_signal(indata_array):
-    return 20 * np.log10(np.abs(indata_array))
-
-def get_dBFS_audio_signal(indata_array):
-    return 20 * np.log10(np.abs(indata_array) / np.max(np.abs(indata_array)))
-
 def max_limit_dB_audio_signal(indata_array, max_dB=0.0):
     # Get the dB of the audio signal
     dB_audio_signal = get_dB_audio_signal(indata_array=indata_array)
     # if `dB_audio_signal` is greater than `max_dB`, then ajust all values in `indata_array` (if too high, then reduce the values). In resume if the audio signal is superior to the limit, then the audio signal is set to be equal to the limit.
-    return np.where(dB_audio_signal > max_dB, max_dB, indata_array) 
+    return np.where(dB_audio_signal > max_dB, max_dB, indata_array)
 
 def get_n_last_amplitudes(n):
     global AUDIO_SOURCE_AMPLITUDES
@@ -111,7 +101,7 @@ def callback_audio_source(indata, frames, time, status):
     print(f"Amplitude: {amplitude:.2f}")
 
     #udp_socket.sendto(indata.tobytes(), (udp_target_ip, udp_target_port))
-  
+
     indata = increase_gain_audio_signal(indata_array, gain=12.0)
 
 
