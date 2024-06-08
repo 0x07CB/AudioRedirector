@@ -3,9 +3,6 @@
 
 from config.arguments import parse_arguments
 
-args = parse_arguments()
-
-
 import sounddevice as sd
 import argparse
 import queue
@@ -134,24 +131,29 @@ q__file = queue.Queue()
 #udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 #udp_target_ip = '192.168.1.2'  # Remplacer par l'adresse IP de la machine cible
 #udp_target_port = 5005         # Choisir un port disponible sur la machine cible
+if __name__ == '__main__':
 
-try:
-    with AudioFileSaver(samplerate=args.samplerate, channels=args.channels) as file:
-        with AudioInputStream(samplerate=args.samplerate, device=args.input_device,
+    args = parse_arguments()
+
+    try:
+        with AudioFileSaver(samplerate=args.samplerate, channels=args.channels) as file:
+            with AudioInputStream(samplerate=args.samplerate, device=args.input_device,
                               channels=args.channels, blocksize=args.blocksize,
                               callback=callback_audio_source) as source:
-            with AudioOutputStream(samplerate=args.samplerate, device=args.output_device,
+                with AudioOutputStream(samplerate=args.samplerate, device=args.output_device,
                                    channels=args.channels, blocksize=args.blocksize,
                                    callback=callback_audio_destination) as destination:
-                print('#' * 80)
-                print('Press <Ctrl+C> to quit')
-                print('#' * 80)
-                while True:
-                    file.write(q__file.get())
-except KeyboardInterrupt:
-    #udp_socket.close()
-    print("Program interrupted by user.")
-except Exception as e:
-    #udp_socket.close()
-    print(f"An error occurred: {type(e).__name__} - {e}")
+                    print('#' * 80)
+                    print('Press <Ctrl+C> to quit')
+                    print('#' * 80)
+                    while True:
+                        file.write(q__file.get())
+    except KeyboardInterrupt:
+        #udp_socket.close()
+        print("Program interrupted by user.")
+    except Exception as e:
+        #udp_socket.close()
+        print(f"An error occurred: {type(e).__name__} - {e}")
+
+    exit(0)
 
