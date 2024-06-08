@@ -22,6 +22,7 @@ from audio_utils.signal_processing import get_dB_audio_signal, get_dBFS_audio_si
 from effects.audio_amplitude import get_amplitude_audio_signal, increase_gain_audio_signal, decrease_gain_audio_signal, normalize_audio_signal
 
 from audio_processing.limiting import max_limit_dB_audio_signal
+from statistical_utils.amplitude_stats import get_mean_amplitudes
 
 
 AUDIO_SOURCE_AMPLITUDES = []
@@ -36,8 +37,6 @@ def get_n_last_amplitudes(n):
     global AUDIO_SOURCE_AMPLITUDES
     return AUDIO_SOURCE_AMPLITUDES[-n:]
 
-def get_mean_amplitudes(amplitudes):
-    return np.mean(amplitudes)
 
 def keep_last_n_amplitudes(n):
     global AUDIO_SOURCE_AMPLITUDES
