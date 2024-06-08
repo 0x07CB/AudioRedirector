@@ -5,8 +5,8 @@ from config.arguments import parse_arguments
 
 
 import sounddevice as sd
-import argparse
-import queue
+
+
 import numpy as np
 #import socket
 
@@ -82,8 +82,7 @@ def is_audio_signal_transmit(n_last_amplitudes=100,
 
 
 
-q__audio = queue.Queue()
-q__file = queue.Queue()
+
 
 # Initialisation du socket UDP
 #udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
