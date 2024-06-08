@@ -4,6 +4,8 @@ import sounddevice as sd
 import soundfile as sf
 import tempfile
 
+from callbacks.audio_callbacks import *
+
 class AudioFileSaver:
     def __init__(self, filename=None, samplerate=48000, channels=2):
         self.filename = filename or tempfile.mktemp(prefix='sounddevice-', suffix='.wav', dir='')
@@ -22,12 +24,11 @@ class AudioFileSaver:
             self.file = None
 
 class AudioOutputStream:
-    def __init__(self, samplerate=48000, device=None, channels=2, blocksize=384, callback=None):
+    def __init__(self, samplerate=48000, device=None, channels=2, blocksize=384):
         self.samplerate = samplerate
         self.device = device
         self.channels = channels
         self.blocksize = blocksize
-        self.callback = callback
         self.stream = None
 
     def __enter__(self):
@@ -35,7 +36,7 @@ class AudioOutputStream:
                                       device=self.device,
                                       channels=self.channels,
                                       blocksize=self.blocksize,
-                                      callback=self.callback)
+                                      callback=callback_audio_destination)
         self.stream.__enter__()
         return self.stream
 
@@ -44,12 +45,11 @@ class AudioOutputStream:
             self.stream.__exit__(exc_type, exc_value, traceback)
 
 class AudioInputStream:
-    def __init__(self, samplerate=48000, device=None, channels=2, blocksize=384, callback=None):
+    def __init__(self, samplerate=48000, device=None, channels=2, blocksize=384):
         self.samplerate = samplerate
         self.device = device
         self.channels = channels
         self.blocksize = blocksize
-        self.callback = callback
         self.stream = None
 
     def __enter__(self):
@@ -57,7 +57,7 @@ class AudioInputStream:
                                      device=self.device,
                                      channels=self.channels,
                                      blocksize=self.blocksize,
-                                     callback=self.callback)
+                                     callback=callback_audio_source)
         self.stream.__enter__()
         return self.stream
 

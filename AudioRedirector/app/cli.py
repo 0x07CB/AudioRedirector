@@ -15,11 +15,8 @@ import numpy as np
 #import socket
 
 # Importer les modules définis ci-dessus
-from stream.audio_file_saver import AudioFileSaver
-from stream.audio_input_stream import AudioInputStream
-from stream.audio_output_stream import AudioOutputStream
+from stream.audio_stream import AudioFileSaver, AudioInputStream, AudioOutputStream
 
-from callbacks.audio_callbacks import AudioCallbacks
 
 
 from audio_utils.signal_processing import get_dB_audio_signal, get_dBFS_audio_signal
@@ -84,31 +81,67 @@ def is_audio_signal_transmit(n_last_amplitudes=100,
             AUDIO_SOURCE_AMPLITUDES = keep_last_n_amplitudes(n=max_keep_last_amplitudes)
 
 
-async def create_audio_file_saver(samplerate, channels):
-    loop = asyncio.get_event_loop()
-    event = asyncio.Event()
-    stream = AudioFileSaver(samplerate=samplerate, channels=channels)
+# async def create_audio_file_saver(samplerate, channels):
+#     loop = asyncio.get_event_loop()
+#     event = asyncio.Event()
+#     stream = AudioFileSaver(samplerate=samplerate, channels=channels)
 
-    with stream:
-        await event.wait()
+#     with stream:
+#         await event.wait()
 
-async def create_audio_input_stream(samplerate, channels, device, blocksize, callback):
-    loop = asyncio.get_event_loop()
-    event = asyncio.Event()
-    stream = AudioInputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
+# async def create_audio_input_stream(samplerate, channels, device, blocksize):
+#     loop = asyncio.get_event_loop()
+#     event = asyncio.Event()
+#     stream = AudioInputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize)
 
-    with stream:
-        await event.wait()
+#     with stream:
+#         await event.wait()
 
-async def create_audio_output_stream(samplerate, channels, device, blocksize, callback):
-    loop = asyncio.get_event_loop()
-    event = asyncio.Event()
-    stream = AudioOutputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
+# async def create_audio_output_stream(samplerate, channels, device, blocksize):
+#     loop = asyncio.get_event_loop()
+#     event = asyncio.Event()
+#     stream = AudioOutputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize)
 
-    with stream:
-        await event.wait()
+#     with stream:
+#         await event.wait()
 
-async def main():
+# async def main():
+#     Parser = parse_arguments()
+#     args = Parser.parse_args()
+
+#     if args.list_devices:
+#         print("devices:\n{0}".format(sd.query_devices()))
+#         Parser.exit(0)
+
+#     # Utilisation des fonctions dans le code principal
+#     try:
+#         #create_audio_file_saver(args.samplerate, args.channels)
+#         await create_audio_input_stream(args.samplerate, args.channels, args.input_device, args.blocksize)
+#         await create_audio_output_stream(args.samplerate, args.channels, args.output_device, args.blocksize)
+        
+#         #with  source, destination:
+#         print('#' * 80)
+#         print('Press <Ctrl+C> to quit')
+#         print('#' * 80)
+#         while True:
+#             #file.write(audio_callbacks.q__file.get())
+#             sleep(1)
+
+#     except KeyboardInterrupt:
+#         print("Program interrupted by user.")
+#     except Exception as e:
+#         print(f"An error occurred: {type(e).__name__} - {e}")
+
+#     exit(0)
+
+# if __name__ == "__main__":
+#     try:
+#         asyncio.run(main())
+#     except KeyboardInterrupt:
+#         sys.exit('\nInterrupted by user')
+
+if __name__ == '__main__':
+
     Parser = parse_arguments()
     args = Parser.parse_args()
 
@@ -116,33 +149,23 @@ async def main():
         print("devices:\n{0}".format(sd.query_devices()))
         Parser.exit(0)
 
-    audio_callbacks = AudioCallbacks()
-
-
-
-    # Utilisation des fonctions dans le code principal
     try:
-        #create_audio_file_saver(args.samplerate, args.channels)
-        await create_audio_input_stream(args.samplerate, args.channels, args.input_device, args.blocksize, audio_callbacks.callback_audio_source)
-        await create_audio_output_stream(args.samplerate, args.channels, args.output_device, args.blocksize, audio_callbacks.callback_audio_destination)
-        
-        #with  source, destination:
-        print('#' * 80)
-        print('Press <Ctrl+C> to quit')
-        print('#' * 80)
-        while True:
-            #file.write(audio_callbacks.q__file.get())
-            sleep(1)
-
+        #with AudioFileSaver(samplerate=args.samplerate, channels=args.channels) as file:
+        with AudioInputStream(samplerate=args.samplerate, device=args.input_device,
+                            channels=args.channels, blocksize=args.blocksize) as source:
+            with AudioOutputStream(samplerate=args.samplerate, device=args.output_device,
+                                channels=args.channels, blocksize=args.blocksize) as destination:
+                print('#' * 80)
+                print('Press <Ctrl+C> to quit')
+                print('#' * 80)
+                while True:
+                    sleep(1)
+                        #file.write(q__file.get())
     except KeyboardInterrupt:
+        #udp_socket.close()
         print("Program interrupted by user.")
     except Exception as e:
+        #udp_socket.close()
         print(f"An error occurred: {type(e).__name__} - {e}")
 
     exit(0)
-
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        sys.exit('\nInterrupted by user')
