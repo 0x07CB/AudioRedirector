@@ -3,6 +3,7 @@
 
 from config.arguments import parse_arguments
 
+
 import sounddevice as sd
 import argparse
 import queue
@@ -13,6 +14,9 @@ import numpy as np
 from stream.audio_file_saver import AudioFileSaver
 from stream.audio_input_stream import AudioInputStream
 from stream.audio_output_stream import AudioOutputStream
+
+from callbacks.audio_callbacks import callback_audio_source, callback_audio_destination
+
 
 from audio_utils.signal_processing import get_dB_audio_signal, get_dBFS_audio_signal
 
@@ -76,49 +80,6 @@ def is_audio_signal_transmit(n_last_amplitudes=100,
             AUDIO_SOURCE_AMPLITUDES = keep_last_n_amplitudes(n=max_keep_last_amplitudes)
 
 
-def callback_audio_source(indata, frames, time, status):
-    global AUDIO_SOURCE_AMPLITUDES
-    global AUDIO_SOURCE_TRANSMIT_STATUS
-    global AUDIO_SOURCE_TRANSMIT_COUNT
-
-    if status:
-        print(status)
-
-    # I want display the audio amplitude (0.0 to 200.0)
-    # First: Get indata and create a numpy array.
-    # Second: Get the amplitude of the audio signal.
-    # Third: Display the amplitude.
-
-    # First
-    indata_array = np.array(indata)
-
-    # Second
-    amplitude = get_amplitude_audio_signal(indata_array=indata_array)
-    #AUDIO_SOURCE_AMPLITUDES.append(amplitude)
-
-    # Third
-    print(f"Amplitude: {amplitude:.2f}")
-
-    #udp_socket.sendto(indata.tobytes(), (udp_target_ip, udp_target_port))
-
-    indata = increase_gain_audio_signal(indata_array, gain=12.0)
-
-
-    # if ( AUDIO_SOURCE_TRANSMIT_STATUS == True ):
-    #     q__audio.put(indata.copy())
-    # else:
-    #     q__audio.put(np.zeros_like(indata))
-
-
-    q__audio.put(indata.copy())
-    q__file.put(indata.copy())
-
-def callback_audio_destination(outdata, frames, time, status):
-    if status:
-        print(status, file=sys.stderr)
-
-    if not q__audio.empty():
-        outdata[:] = q__audio.get()
 
 
 q__audio = queue.Queue()
