@@ -80,6 +80,14 @@ def is_audio_signal_transmit(n_last_amplitudes=100,
             AUDIO_SOURCE_AMPLITUDES = keep_last_n_amplitudes(n=max_keep_last_amplitudes)
 
 
+def create_audio_file_saver(samplerate, channels):
+    return AudioFileSaver(samplerate=samplerate, channels=channels)
+
+def create_audio_input_stream(samplerate, channels, device, blocksize, callback):
+    return AudioInputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
+
+def create_audio_output_stream(samplerate, channels, device, blocksize, callback):
+    return AudioOutputStream(samplerate=samplerate, device=device, channels=channels, blocksize=blocksize, callback=callback)
 
 
 
@@ -99,24 +107,24 @@ if __name__ == '__main__':
 
     audio_callbacks = AudioCallbacks()
 
+
+
+    # Utilisation des fonctions dans le code principal
     try:
-        with AudioFileSaver(samplerate=args.samplerate, channels=args.channels) as file:
-            with AudioInputStream(samplerate=args.samplerate, device=args.input_device,
-                              channels=args.channels, blocksize=args.blocksize,
-                              callback=audio_callbacks.callback_audio_source) as source:
-                with AudioOutputStream(samplerate=args.samplerate, device=args.output_device,
-                                   channels=args.channels, blocksize=args.blocksize,
-                                   callback=audio_callbacks.callback_audio_destination) as destination:
-                    print('#' * 80)
-                    print('Press <Ctrl+C> to quit')
-                    print('#' * 80)
-                    while True:
-                        file.write(audio_callbacks.q__file.get())
+        file = create_audio_file_saver(args.samplerate, args.channels)
+        source = create_audio_input_stream(args.samplerate, args.channels, args.input_device, args.blocksize, audio_callbacks.callback_audio_source)
+        destination = create_audio_output_stream(args.samplerate, args.channels, args.output_device, args.blocksize, audio_callbacks.callback_audio_destination)
+        
+        with file, source, destination:
+            print('#' * 80)
+            print('Press <Ctrl+C> to quit')
+            print('#' * 80)
+            while True:
+                file.write(audio_callbacks.q__file.get())
+                
     except KeyboardInterrupt:
-        #udp_socket.close()
         print("Program interrupted by user.")
     except Exception as e:
-        #udp_socket.close()
         print(f"An error occurred: {type(e).__name__} - {e}")
 
     exit(0)
