@@ -120,9 +120,6 @@ def callback_audio_destination(outdata, frames, time, status):
     if not q__audio.empty():
         outdata[:] = q__audio.get()
 
-if args.list_devices:
-    print("devices:\n{0}".format(sd.query_devices()))
-    parser.exit(0)
 
 q__audio = queue.Queue()
 q__file = queue.Queue()
@@ -134,6 +131,10 @@ q__file = queue.Queue()
 if __name__ == '__main__':
 
     args = parse_arguments()
+
+    if args.list_devices:
+        print("devices:\n{0}".format(sd.query_devices()))
+        parser.exit(0)
 
     try:
         with AudioFileSaver(samplerate=args.samplerate, channels=args.channels) as file:
