@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 #coding: utf-8
+
+from config.arguments import parse_arguments
+
+args = parse_arguments()
+
+
 import sounddevice as sd
 import argparse
 import queue
@@ -120,17 +126,6 @@ def callback_audio_destination(outdata, frames, time, status):
 
     if not q__audio.empty():
         outdata[:] = q__audio.get()
-
-# Configuration des arguments et des variables
-parser = argparse.ArgumentParser()
-parser.add_argument('-l', '--list-devices', action='store_true',
-                        help='show list of audio devices and exit')
-parser.add_argument('-i', '--input-device', type=int, help='Input device ID')
-parser.add_argument('-o', '--output-device', type=int, help='Output device ID')
-parser.add_argument('-c', '--channels', type=int, default=2, help='Number of channels')
-parser.add_argument('--samplerate', type=int, default=48000, help='Sampling rate')
-parser.add_argument('--blocksize', type=int, default=384, help='Block size')
-args = parser.parse_args()
 
 if args.list_devices:
     print("devices:\n{0}".format(sd.query_devices()))
