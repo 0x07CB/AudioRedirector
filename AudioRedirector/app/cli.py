@@ -7,9 +7,11 @@ import numpy as np
 #import socket
 
 # Importer les modules définis ci-dessus
-from audio_file_saver import AudioFileSaver
-from audio_input_stream import AudioInputStream
-from audio_output_stream import AudioOutputStream
+from stream.audio_file_saver import AudioFileSaver
+from stream.audio_input_stream import AudioInputStream
+from stream.audio_output_stream import AudioOutputStream
+
+from effects.audio_amplitude import get_amplitude_audio_signal, increase_gain_audio_signal, decrease_gain_audio_signal, normalize_audio_signal
 
 AUDIO_SOURCE_AMPLITUDES = []
 AUDIO_SOURCE_TRANSMIT_STATUS = False
@@ -18,17 +20,10 @@ AUDIO_SOURCE_TRANSMIT_COUNT = 0
 
 # audio_effect_adjust_pitch_and_speed(indata_array, pitch=1.0, speed=1.0):
 
-def get_amplitude_audio_signal(indata_array):
-    return np.abs(indata_array).mean() * 200
 
-def normalize_audio_signal(indata_array):
-    return indata_array / np.max(np.abs(indata_array))
 
-def increase_gain_audio_signal(indata_array, gain=1.0):
-    return indata_array * gain
 
-def decrease_gain_audio_signal(indata_array, gain=1.0):
-    return indata_array / gain
+
 
 
 
